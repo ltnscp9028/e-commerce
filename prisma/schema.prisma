@@ -9,3 +9,81 @@ datasource db {
   provider = "sqlite"
   url      = "file:./dev.db"
 }
+
+model Customer {
+  id       String  @id @default(uuid())
+  name     String
+  email    String
+  password String
+  stores   Store?
+  Order    Order[]
+}
+
+model Store {
+  id          String    @id @default(uuid())
+  name        String
+  customer_id String    @unique
+  customer    Customer  @relation(fields: [customer_id], references: [id])
+  products    Product[]
+  Order       Order[]
+}
+
+model Product {
+  id            String          @id @default(uuid())
+  name          String
+  price         Int
+  store_id      String
+  store         Store           @relation(fields: [store_id], references: [id])
+  categories    Category[]
+  Order         Order[]
+  Asset         Asset[]
+  productDetail ProductDetail[]
+}
+
+model ProductDetail {
+  id         String  @id @default(uuid())
+  content    String
+  numbering  Int
+  product_id String
+  product    Product @relation(fields: [product_id], references: [id])
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String
+  products Product[]
+}
+
+model Order {
+  id            String    @id @default(uuid())
+  status        String
+  price         Int
+  amount        Int
+  discountPrice Int       @default(0)
+  totalPrice    Int
+  store_id      String
+  customer_id   String
+  store         Store     @relation(fields: [store_id], references: [id])
+  customer      Customer  @relation(fields: [customer_id], references: [id])
+  product       Product[]
+}
+
+model Asset {
+  id           String        @id @default(uuid())
+  name         String
+  Products     Product[]
+  customFields CustomField[]
+}
+
+model CustomField {
+  id         String  @id @default(uuid())
+  name       String
+  scalarType String
+  type       Scalar  @relation(fields: [scalarType], references: [type])
+  Assets     Asset[]
+}
+
+model Scalar {
+  type         String        @id
+  customFields CustomField[]
+}
